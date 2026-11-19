@@ -1,0 +1,28 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Survivor Seasons</title>
+<meta name="description" content="A spoiler-aware visual guide to every season of Survivor: tribes, swaps, merges, exits, immunity and returning players.">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Cpath d='M16 3c3 5 7 8 7 14a7 7 0 0 1-14 0c0-4 2-6 4-9 0 3 1 5 3 5 0-4-1-7 0-10z' fill='%23e8590c'/%3E%3C/svg%3E">
+</head>
+<body>
+<header class="top"><div class="top-inner">
+  <h1>Survivor Seasons</h1>
+  <p class="sub">Every season as a map of who was on which tribe and when they left. Results stay blurred until you reveal a season. Click a name for the player card.</p>
+  <div class="settings">Order
+    <div class="seg" role="group" aria-label="Lane order">
+      <button data-order="lanes" title="By first name inside each starting tribe. Lifelines keep their lane through merges; lanes move only at a swap or shuffle.">Stable lanes</button>
+      <button data-order="longevity" title="Longest-lasting player first inside each tribe. Rows re-sort when you reveal a season.">Longest-lasting first</button>
+    </div>
+  </div>
+</div></header>
+<main id="page"><nav id="index" aria-label="Seasons"></nav><svg id="gutter" aria-hidden="true"></svg><div id="cards"><p class="loading">Loading seasons…</p></div><aside id="player" class="rail" hidden></aside></main>
+<footer class="site-foot">
+  <p>A fan project, not affiliated with CBS or the makers of Survivor.</p>
+  <p>Season data from <a href="https://github.com/doehm/survivoR">survivoR</a> by Daniel Oehm (<a href="data/SURVIVOR-DATA-LICENSE.md">MIT License</a>). Player photos © CBS, via <a href="https://survivor.fandom.com/">Survivor Wiki</a>. Season reviews link to <a href="https://www.purplerockpodcast.com/">The Purple Rock Podcast</a>.</p>
+</footer>
+<script type="module" src="/src/main.ts"></script>
+</body>
+</html>

@@ -77,7 +77,8 @@ export interface Photo {
 export interface Person {
   pid: string;
   name: string;
-  wikiTitle: string;
+  wikiTitle: string;          // Survivor Wiki page; updated to the page the photo lookup found
+  altWikiTitle: string | null; // "Short name + surname" (wiki pages often use nicknames)
   photo: Photo | null;
 }
 

@@ -32,7 +32,7 @@ for (const t of TABLES) {
 }
 out.castaway_details = (JSON.parse(await readFile('data/raw/castaway_details.json', 'utf8')) as Row[])
   .filter((r) => ids.has(r.castaway_id as string))
-  .map(({ castaway_id, full_name, occupation }) => ({ castaway_id, full_name, occupation }));
+  .map(({ castaway_id, full_name, last_name, occupation }) => ({ castaway_id, full_name, last_name, occupation }));
 await writeFile('tests/fixtures/survivor-subset.json', JSON.stringify(out));
 await copyFile('data/raw/LICENSE.md', 'tests/fixtures/SURVIVOR-DATA-LICENSE.md');
 console.log('wrote tests/fixtures/survivor-subset.json', Object.fromEntries(Object.entries(out).map(([k, v]) => [k, v.length])));

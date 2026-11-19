@@ -74,12 +74,16 @@ export function convert(t: RawTables, o: ConvertOptions): Dataset {
     colours: colours.filter((r) => r.season === s.season),
   }, o));
 
+  const shortName = new Map(castaways.map((c) => [str(c.castaway_id) ?? '', str(c.castaway)]));
   const people: Record<string, Person> = {};
   for (const s of seasons) {
     for (const a of s.cast) {
       if (people[a.pid]) continue;
-      const name = str(details.get(a.pid)?.full_name) ?? a.name;
-      people[a.pid] = { pid: a.pid, name, wikiTitle: name, photo: null };
+      const d = details.get(a.pid);
+      const name = str(d?.full_name) ?? a.name;
+      const short = shortName.get(a.pid), last = str(d?.last_name);
+      const alt = short && last ? `${short} ${last}` : null;
+      people[a.pid] = { pid: a.pid, name, wikiTitle: name, altWikiTitle: alt && alt !== name ? alt : null, photo: null };
     }
   }
   /* Occupation is per person in survivoR. */

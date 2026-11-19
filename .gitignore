@@ -1,0 +1,7 @@
+node_modules/
+dist/
+data/raw/
+public/photos/
+.cache/
+*.log
+.DS_Store

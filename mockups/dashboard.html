@@ -1,0 +1,43 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Survivor Seasons Mockup</title>
+<link rel="stylesheet" href="shared/base.css">
+<link rel="stylesheet" href="shared/transit.css">
+</head>
+<body>
+<header class="top"><div class="top-inner">
+  <nav class="mock-nav"><a href="index.html">All mockups</a><a href="dashboard.html" aria-current="page">Dashboard</a></nav>
+  <h1>Survivor Seasons</h1>
+  <p class="sub">Transit Map. Click a name for the player card. Sample data (fictional).</p>
+  <div class="settings">Order
+    <div class="seg" role="group" aria-label="Row order">
+      <button data-order="lanes" title="By first name inside each starting tribe. Lifelines keep their lane through merges; lanes move only at a swap or shuffle.">Stable lanes</button>
+      <button data-order="longevity" title="Longest-lasting player first inside each tribe. Rows re-sort when you reveal a season.">Longest-lasting first</button>
+    </div>
+  </div>
+</div></header>
+<main id="page"><nav id="index" aria-label="Seasons"></nav><svg id="gutter"></svg><div id="cards"></div><aside id="player" class="rail" hidden></aside></main>
+<script src="shared/data.js"></script>
+<script src="shared/core.js"></script>
+<script src="shared/transit.js"></script>
+<script>
+/* Row order is a per-viewer setting, remembered in this browser. Stable lanes is the default. */
+const ORDER_KEY = 'survivor:order';
+let order = 'lanes';
+try { if (localStorage.getItem(ORDER_KEY) === 'longevity') order = 'longevity'; } catch { /* storage blocked */ }
+const app = mount((s, revealed, w) => transitRenderer({ order })(s, revealed, w));
+const buttons = document.querySelectorAll('.seg button');
+const sync = () => buttons.forEach((b) => b.setAttribute('aria-pressed', b.dataset.order === order));
+sync();
+buttons.forEach((b) => b.addEventListener('click', () => {
+  order = b.dataset.order;
+  try { localStorage.setItem(ORDER_KEY, order); } catch { /* storage blocked */ }
+  sync();
+  app.redraw();
+}));
+</script>
+</body>
+</html>

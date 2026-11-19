@@ -1,0 +1,20 @@
+/* Theme and chart styles for the Transit Map layout (mockup B). */
+:root {
+  --bg: #f4f5f7; --card: #ffffff; --ink: #1b1f24; --muted: #6b7280; --line: #e3e6ea;
+  --accent: #c92a2a; --final: #1b1f24; --grid: #f1f2f4;
+  --font: "Helvetica Neue", Helvetica, Arial, sans-serif;
+  --font-head: "Helvetica Neue", Helvetica, Arial, sans-serif;
+  --radius: 6px; --card-gap: 20px;
+}
+h1, .card-head h2 { font-weight: 800; letter-spacing: -.01em; }
+.name { font-size: 12px; font-weight: 500; }
+.band { fill-opacity: .06; }
+.pill text { fill: #fff; font-size: 9px; font-weight: 800; letter-spacing: .1em; }
+.life { fill: none; stroke-width: 3.4; stroke-linecap: round; }
+.life.ghost { stroke: #b9bfc8; }
+.life.pin { stroke-width: 5; }
+.station { fill: #fff; stroke-width: 1.8; }
+.origin { stroke: #fff; stroke-width: 1.5; }
+.exit circle { stroke-width: 2; }
+.hovering .station, .hovering .origin { opacity: .25; }
+.band-row { fill-opacity: .13; }

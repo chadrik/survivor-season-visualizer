@@ -1,0 +1,26 @@
+{
+  "name": "survivor-season-visualizer",
+  "private": true,
+  "version": "0.1.0",
+  "type": "module",
+  "description": "A spoiler-aware dashboard of Survivor seasons: tribe lifelines, exits, immunity and returning players.",
+  "scripts": {
+    "dev": "vite",
+    "build": "tsc --noEmit && vite build",
+    "preview": "vite preview",
+    "data": "node scripts/build-data.ts",
+    "photos": "node scripts/fetch-photos.ts",
+    "fixtures": "node scripts/make-fixtures.ts",
+    "test": "vitest run",
+    "typecheck": "tsc --noEmit"
+  },
+  "engines": {
+    "node": ">=23.6"
+  },
+  "devDependencies": {
+    "@types/node": "^22.20.5",
+    "typescript": "5.8",
+    "vite": "^6.4.6",
+    "vitest": "^3.2.7"
+  }
+}

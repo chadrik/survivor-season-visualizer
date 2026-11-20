@@ -1,5 +1,7 @@
 # Survivor Season Visualizer
 
+**Live site: https://chadrik.github.io/survivor-season-visualizer/**
+
 A spoiler-aware dashboard of every completed US season of *Survivor*. Each
 season is a card of player lifelines: who was on which tribe, when tribes
 swapped or merged, individual and tribe immunity wins, and how and when each

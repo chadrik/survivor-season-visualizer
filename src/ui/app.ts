@@ -6,7 +6,7 @@ import type { Appearance, Dataset, Season } from '../model.ts';
 import { ORDERS, type Order } from '../layout.ts';
 import { renderSeason } from '../render.ts';
 import { backstorySeasons, buildIndex, startingTribes } from '../season.ts';
-import { esc, reviewUrl, wikiUrl } from '../format.ts';
+import { esc, wikiUrl } from '../format.ts';
 import { OrderSetting, Watched } from '../storage.ts';
 import { cardHtml } from './card.ts';
 
@@ -42,11 +42,14 @@ export function mountApp(data: Dataset): void {
     sec.className = 'card';
     sec.id = s.id;
     sec.innerHTML = `<header class="card-head">
-        <div class="card-title"><span class="card-num">Season ${s.num}</span><h2>${esc(s.name)}</h2></div>
+        <div class="card-title">
+          <a class="card-num" href="${wikiUrl(s.wikiTitle)}" target="_blank" rel="noopener" title="${esc(s.wikiTitle)} on Survivor Wiki">Season ${s.num}</a>
+          <h2>${esc(s.name)}</h2>
+          ${s.year ? `<div class="card-year">${s.year}</div>` : ''}
+          ${s.ranking ? `<a class="card-rank" href="${esc(s.ranking.url)}" target="_blank" rel="noopener" title="Purple Rock Podcast season ranking, with a spoiler-free summary">Ranked ${s.ranking.rank} of ${s.ranking.of}</a>` : ''}
+        </div>
         <div class="card-meta"><span>${s.cast.length} castaways</span><span>${s.days} days</span>
           <span>${startingTribes(s).length} starting tribes</span><span class="prereq"></span></div>
-        <div class="card-links"><a href="${reviewUrl(s.reviewUrl, s.name)}" target="_blank" rel="noopener">Purple Rock ↗</a>
-          <a href="${wikiUrl(s.wikiTitle)}" target="_blank" rel="noopener">Wiki ↗</a></div>
         <label class="toggle"><input type="checkbox" ${Watched.get(s.id) ? 'checked' : ''}>
           <span class="track"><span class="thumb"></span></span><span>Reveal results</span></label>
       </header><div class="chart"></div>`;
@@ -94,9 +97,9 @@ export function mountApp(data: Dataset): void {
   /* ---------- cross-season links ---------- */
 
   /*
-   * One line per returning player, joining each of their appearances. Lines
-   * share lanes where their vertical spans do not overlap, and the lane gap
-   * shrinks to fit the gutter.
+   * One line per returning player, joining each of their appearances. All
+   * lines share one track and may overlap: only one player is highlighted at
+   * a time, and the highlighted line is drawn on top.
    */
   function drawGutter(): void {
     const pr = page.getBoundingClientRect();
@@ -114,19 +117,8 @@ export function mountApp(data: Dataset): void {
       if (pts.length > 1) links.push({ pid, pts });
     }
     links.sort((a, b) => a.pts[0].y - b.pts[0].y);
-    const laneEnds: number[] = [];
-    const laneOf = links.map((l) => {
-      const top = l.pts[0].y, bottom = l.pts[l.pts.length - 1].y;
-      let lane = laneEnds.findIndex((end) => end + 8 < top);
-      if (lane < 0) { lane = laneEnds.length; laneEnds.push(bottom); } else laneEnds[lane] = bottom;
-      return lane;
-    });
-    const right = cardsEl.offsetLeft - 10;
-    const leftLimit = index.offsetWidth ? index.offsetLeft + index.offsetWidth + 8 : 6;
-    const gap = Math.max(1.5, Math.min(8, (right - leftLimit) / Math.max(1, laneEnds.length)));
-    const r = Math.min(6, gap * 2);
+    const lx = cardsEl.offsetLeft - 12, r = 6;
     gutter.innerHTML = links.map((l, i) => {
-      const lx = right - laneOf[i] * gap;
       let d = '';
       for (let j = 1; j < l.pts.length; j++) {
         const a = l.pts[j - 1], b = l.pts[j];
@@ -148,6 +140,9 @@ export function mountApp(data: Dataset): void {
     page.querySelectorAll('.hl, .pin').forEach((e) => e.classList.remove('hl', 'pin'));
     if (hovered) page.querySelectorAll(`[data-pid="${hovered}"]`).forEach((e) => e.classList.add('hl'));
     if (pinned) page.querySelectorAll(`[data-pid="${pinned}"]`).forEach((e) => e.classList.add('hl', 'pin'));
+    /* Gutter lines overlap: draw the highlighted ones last so they sit on top. */
+    gutter.querySelectorAll('.link.pin').forEach((e) => gutter.append(e));
+    gutter.querySelectorAll('.link.hl:not(.pin)').forEach((e) => gutter.append(e));
     for (const sec of cardsEl.children) sec.classList.toggle('is-active', !!pinned && sec.id === activeId);
   }
 

@@ -12,7 +12,8 @@
     "photos": "node scripts/fetch-photos.ts",
     "fixtures": "node scripts/make-fixtures.ts",
     "test": "vitest run",
-    "typecheck": "tsc --noEmit"
+    "typecheck": "tsc --noEmit",
+    "rankings": "node scripts/fetch-rankings.ts"
   },
   "engines": {
     "node": ">=23.6"

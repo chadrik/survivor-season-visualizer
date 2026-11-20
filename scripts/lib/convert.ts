@@ -3,7 +3,7 @@
  * dashboard Dataset. Pure function: no file or network access, so tests can
  * run it on fixture tables.
  */
-import type { Appearance, Dataset, Exit, ExitKind, Person, Phase, Season, Stint } from '../../src/model.ts';
+import type { Appearance, Dataset, Exit, ExitKind, Person, Phase, Ranking, Season, Stint } from '../../src/model.ts';
 
 /* survivoR rows are loose JSON records; read fields defensively. */
 type Row = Record<string, unknown>;
@@ -18,10 +18,17 @@ export interface RawTables {
   challenge_results: Row[];
 }
 
+/* Saved Purple Rock ranking, as written by scripts/fetch-rankings.ts. */
+export interface Rankings {
+  url: string;
+  total: number;
+  seasons: Record<string, { rank: number; heading: string }>;
+}
+
 export interface ConvertOptions {
   version: string;                  // "US"
   today: string;                    // ISO date; seasons that end after it are left out
-  reviews: Record<string, string>;  // season number -> Purple Rock URL
+  rankings: Rankings | null;        // saved Purple Rock ranking (data/purple-rock-rankings.json)
 }
 
 const SECOND_CHANCES = new Set(['Redemption Island', 'Edge of Extinction']);
@@ -209,9 +216,22 @@ function convertSeason(summary: Row, r: SeasonRows, o: ConvertOptions): Season {
     secondChance,
     phases,
     cast,
-    reviewUrl: o.reviews[String(n)] ?? null,
+    year: Number(str(summary.premiered)?.slice(0, 4)) || null,
+    ranking: rankingOf(o.rankings, n),
     wikiTitle: /^Survivor \d+$/.test(name) ? name : `Survivor: ${name}`,
   };
+}
+
+/*
+ * A season's place in the Purple Rock ranking. The link opens the ranking page
+ * at the season's spoiler-free summary, using a text fragment (#:~:text=) that
+ * matches the summary's heading.
+ */
+export function rankingOf(r: Rankings | null, season: number): Ranking | null {
+  const entry = r?.seasons[String(season)];
+  if (!r || !entry) return null;
+  const fragment = encodeURIComponent(entry.heading).replace(/-/g, '%2D');
+  return { rank: entry.rank, of: r.total, url: `${r.url}#:~:text=${fragment}` };
 }
 
 /* Runs of days with the same tribe. A change seen on day d after day p starts on day p + 1. */

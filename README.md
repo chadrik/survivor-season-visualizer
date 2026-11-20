@@ -27,9 +27,9 @@ have not finished airing are left out.
 
 ## Hand-edited data
 
-- `data/purple-rock.json`: one Purple Rock Podcast link per season. Their URLs
-  contain episode titles, so they cannot be generated; seasons without an
-  entry link to a site search.
+- `data/purple-rock-rankings.json`: the Purple Rock Podcast season ranking.
+  `npm run rankings` saves it again from their rankings page; run it when they
+  update the page, and commit the result.
 - `data/photo-overrides.json`: the Survivor Wiki page to take a player's photo
   from, by survivoR `castaway_id`, when the default page is wrong. Set an entry
   to `null` to show initials instead.

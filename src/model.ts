@@ -65,8 +65,15 @@ export interface Season {
   secondChance: string | null;     // twist name, such as "Edge of Extinction"
   phases: Phase[];
   cast: Appearance[];
-  reviewUrl: string | null;        // curated Purple Rock link
+  year: number | null;             // year the season premiered
+  ranking: Ranking | null;         // Purple Rock Podcast ranking, if ranked yet
   wikiTitle: string;               // Survivor Wiki page title
+}
+
+export interface Ranking {
+  rank: number;  // 1 is best
+  of: number;    // seasons in the ranking
+  url: string;   // the season's spoiler-free summary on the ranking page
 }
 
 export interface Photo {

@@ -1,0 +1,208 @@
+{
+  "_about": "Purple Rock Podcast season ranking, saved by scripts/fetch-rankings.ts. heading is the text that starts each season's spoiler-free summary on the page.",
+  "url": "https://www.purplerockpodcast.com/survivor-season-rankings-spoiler-free-summaries/",
+  "saved": "2026-11-20",
+  "total": 50,
+  "seasons": {
+    "1": {
+      "rank": 16,
+      "heading": "16. Borneo (season 1)"
+    },
+    "2": {
+      "rank": 24,
+      "heading": "24. The Australian Outback (season 2)"
+    },
+    "3": {
+      "rank": 38,
+      "heading": "38. Africa (season 3)"
+    },
+    "4": {
+      "rank": 36,
+      "heading": "36. Marquesas (season 4)"
+    },
+    "5": {
+      "rank": 48,
+      "heading": "48. Thailand (season 5)"
+    },
+    "6": {
+      "rank": 18,
+      "heading": "18. The Amazon (season 6)"
+    },
+    "7": {
+      "rank": 6,
+      "heading": "6. Pearl Islands (season 7)"
+    },
+    "8": {
+      "rank": 33,
+      "heading": "33. All-Stars (season 8)"
+    },
+    "9": {
+      "rank": 40,
+      "heading": "40. Vanuatu (season 9)"
+    },
+    "10": {
+      "rank": 13,
+      "heading": "13. Palau (season 10)"
+    },
+    "11": {
+      "rank": 32,
+      "heading": "32. Guatemala (season 11)"
+    },
+    "12": {
+      "rank": 23,
+      "heading": "23. Panama (season 12)"
+    },
+    "13": {
+      "rank": 7,
+      "heading": "7. Cook Islands (season 13)"
+    },
+    "14": {
+      "rank": 30,
+      "heading": "30. Fiji (season 14)"
+    },
+    "15": {
+      "rank": 10,
+      "heading": "10. China (season 15)"
+    },
+    "16": {
+      "rank": 5,
+      "heading": "5. Micronesia: Fans vs. Favorites (season 16)"
+    },
+    "17": {
+      "rank": 43,
+      "heading": "43. Gabon (season 17)"
+    },
+    "18": {
+      "rank": 12,
+      "heading": "12. Tocantins (season 18)"
+    },
+    "19": {
+      "rank": 29,
+      "heading": "29. Samoa (season 19)"
+    },
+    "20": {
+      "rank": 1,
+      "heading": "1. Heroes vs. Villains (season 20)"
+    },
+    "21": {
+      "rank": 50,
+      "heading": "50. Survivor: Nicaragua (season 21)"
+    },
+    "22": {
+      "rank": 44,
+      "heading": "44. Redemption Island (season 22)"
+    },
+    "23": {
+      "rank": 47,
+      "heading": "47. South Pacific (season 23)"
+    },
+    "24": {
+      "rank": 42,
+      "heading": "42. One World (season 24)"
+    },
+    "25": {
+      "rank": 8,
+      "heading": "8. Philippines (season 25)"
+    },
+    "26": {
+      "rank": 27,
+      "heading": "27. Caramoan (season 26)"
+    },
+    "27": {
+      "rank": 17,
+      "heading": "17. Blood vs. Water (season 27)"
+    },
+    "28": {
+      "rank": 2,
+      "heading": "2. Cagayan (season 28)"
+    },
+    "29": {
+      "rank": 28,
+      "heading": "28. San Juan del Sur: Blood vs. Water 2 (season 29)"
+    },
+    "30": {
+      "rank": 46,
+      "heading": "46. Worlds Apart (season 30)"
+    },
+    "31": {
+      "rank": 4,
+      "heading": "4. Cambodia: Second Chance (season 31)"
+    },
+    "32": {
+      "rank": 26,
+      "heading": "26. Kaoh Rong (season 32)"
+    },
+    "33": {
+      "rank": 11,
+      "heading": "11. Millennials vs. Gen X (season 33)"
+    },
+    "34": {
+      "rank": 37,
+      "heading": "37. Game Changers (season 34)"
+    },
+    "35": {
+      "rank": 45,
+      "heading": "45. Heroes vs. Healers vs. Hustlers (season 35)"
+    },
+    "36": {
+      "rank": 39,
+      "heading": "39. Ghost Island (season 36)"
+    },
+    "37": {
+      "rank": 9,
+      "heading": "9. David vs. Goliath (season 37)"
+    },
+    "38": {
+      "rank": 34,
+      "heading": "34. Edge of Extinction (season 38)"
+    },
+    "39": {
+      "rank": 49,
+      "heading": "49. Island of the Idols (season 39)"
+    },
+    "40": {
+      "rank": 3,
+      "heading": "3. Winners at War (season 40)"
+    },
+    "41": {
+      "rank": 25,
+      "heading": "25. Survivor 41 (season 41)"
+    },
+    "42": {
+      "rank": 22,
+      "heading": "22. Survivor 42 (season 42)"
+    },
+    "43": {
+      "rank": 41,
+      "heading": "41. Survivor 43 (season 43)"
+    },
+    "44": {
+      "rank": 14,
+      "heading": "14. Survivor 44 (season 44)"
+    },
+    "45": {
+      "rank": 35,
+      "heading": "35. Survivor 45 (season 45)"
+    },
+    "46": {
+      "rank": 20,
+      "heading": "20. Survivor 46 (season 46)"
+    },
+    "47": {
+      "rank": 19,
+      "heading": "19. Survivor 47 (season 47)"
+    },
+    "48": {
+      "rank": 21,
+      "heading": "21. Survivor 48 (season 48)"
+    },
+    "49": {
+      "rank": 31,
+      "heading": "31. Survivor 49 (season 49)"
+    },
+    "50": {
+      "rank": 15,
+      "heading": "15. Survivor 50 (season 50)"
+    }
+  }
+}

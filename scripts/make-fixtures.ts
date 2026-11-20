@@ -15,7 +15,7 @@ const COLUMNS: Record<string, string[] | null> = {
   castaways: ['version', 'season', 'castaway_id', 'full_name', 'castaway', 'age', 'city', 'state', 'day', 'result', 'original_tribe', 'jury', 'finalist', 'winner'],
   tribe_mapping: ['version', 'season', 'episode', 'day', 'castaway_id', 'tribe', 'tribe_status'],
   tribe_colours: null,
-  season_summary: ['version', 'season', 'season_name', 'ended'],
+  season_summary: ['version', 'season', 'season_name', 'premiered', 'ended'],
   vote_history: ['version', 'season', 'day', 'sog_id', 'voted_out_id', 'vote_event'],
   challenge_results: ['version', 'season', 'episode', 'sog_id', 'castaway_id', 'won_individual_immunity', 'won_tribal_immunity'],
 };

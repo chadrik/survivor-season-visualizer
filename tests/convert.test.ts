@@ -8,7 +8,10 @@ import { convert, seasonName, type RawTables } from '../scripts/lib/convert.ts';
 import type { Appearance, Season } from '../src/model.ts';
 
 const tables = JSON.parse(readFileSync('tests/fixtures/survivor-subset.json', 'utf8')) as RawTables;
-const data = convert(tables, { version: 'US', today: '2026-11-18', reviews: { '10': 'https://example.com/palau' } });
+const data = convert(tables, { version: 'US', today: '2026-11-18', rankings: {
+  url: 'https://example.com/rankings/', total: 50,
+  seasons: { '31': { rank: 4, heading: '4. Cambodia: Second Chance (season 31)' }, '10': { rank: 13, heading: '13. Palau (season 10)' } },
+} });
 const season = (n: number): Season => data.seasons.find((s) => s.num === n)!;
 const player = (n: number, name: string): Appearance => season(n).cast.find((a) => a.name.startsWith(name))!;
 const stints = (a: Appearance) => a.stints.map((s) => [s.from, s.to, s.tribe, !!s.second]);
@@ -19,7 +22,7 @@ describe('seasons', () => {
   });
 
   it('leaves out seasons that had not finished airing', () => {
-    const early = convert(tables, { version: 'US', today: '2000-01-01', reviews: {} });
+    const early = convert(tables, { version: 'US', today: '2000-01-01', rankings: null });
     expect(early.seasons).toEqual([]);
   });
 
@@ -36,9 +39,14 @@ describe('seasons', () => {
     expect(season(45).days).toBe(26);
   });
 
-  it('attaches curated review links', () => {
-    expect(season(10).reviewUrl).toBe('https://example.com/palau');
-    expect(season(1).reviewUrl).toBeNull();
+  it('gives the premiere year', () => {
+    expect(season(1).year).toBe(2000);
+    expect(season(45).year).toBe(2023);
+  });
+
+  it('links a ranked season to its summary heading', () => {
+    expect(season(10).ranking).toEqual({ rank: 13, of: 50, url: 'https://example.com/rankings/#:~:text=13.%20Palau%20(season%2010)' });
+    expect(season(1).ranking).toBeNull();
   });
 });
 

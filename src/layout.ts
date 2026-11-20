@@ -8,19 +8,26 @@
  *   'lanes'     (default) first name within the starting tribe; each phase keeps
  *               the order of the phase before, and a merge keeps every lane.
  *               Lanes move only at a swap or shuffle.
+ *   'fixed'     like 'lanes', but no lane ever moves: at a swap or shuffle each
+ *               lifeline stays put and only its colour changes. Bands cover runs
+ *               of neighbouring lanes in one tribe; the phase's tribe labels sit
+ *               side by side in the top label row.
  *   'longevity' longest-lasting first within each tribe, in every phase.
  */
 import type { Appearance, Season } from './model.ts';
 import { phaseSpans, rank, stintOn, tribeOn, type PhaseSpan } from './season.ts';
 
-export type Order = 'lanes' | 'longevity';
+export type Order = 'lanes' | 'fixed' | 'longevity';
+export const ORDERS: readonly Order[] = ['lanes', 'fixed', 'longevity'];
 
 export interface Group {
   tribe: string;
   colour: string;
   members: Appearance[];
-  yHead: number;  // top of the group's label row
-  y1: number;     // bottom of the group's last lane
+  yHead: number;   // top of the row that holds the group's label
+  y0: number;      // top of the band
+  y1: number;      // bottom of the group's last lane
+  label: boolean;  // draw the tribe label; labels in one row sit side by side
 }
 
 export interface LaidPhase extends PhaseSpan {
@@ -53,12 +60,16 @@ export function computeLayout(s: Season, revealed: boolean, o: LayoutOptions): L
     const members = s.cast.filter((a) => a.exit.day >= ph.day);
     const groups: Group[] = [];
 
-    if (revealed && pi > 0 && ph.merge && o.order === 'lanes') {
+    const keepLanes = revealed && pi > 0 && o.order !== 'longevity';
+    if (keepLanes && (ph.merge || o.order === 'fixed')) {
+      for (const a of members) lanes.get(a)![pi] = lanes.get(a)![pi - 1];
+    }
+
+    if (keepLanes && ph.merge) {
       /*
        * Keep every lane through the merge; one band of the merged tribe spans
        * them all. Players in a Second chance keep their lanes inside it.
        */
-      for (const a of members) lanes.get(a)![pi] = lanes.get(a)![pi - 1];
       const y1 = Math.max(...members.map((a) => lanes.get(a)![pi])) + o.rowH / 2;
       const counts = new Map<string, number>();
       for (const a of members) {
@@ -66,8 +77,23 @@ export function computeLayout(s: Season, revealed: boolean, o: LayoutOptions): L
         if (!st.second) counts.set(st.tribe, (counts.get(st.tribe) ?? 0) + 1);
       }
       const merged = [...counts].sort((x, y) => y[1] - x[1])[0]?.[0] ?? tribeOn(members[0], ph.day);
-      groups.push({ tribe: merged, colour: s.tribes[merged], members, yHead: o.top, y1 });
+      groups.push({ tribe: merged, colour: s.tribes[merged], members, yHead: o.top, y0: o.top, y1, label: true });
       bottom = Math.max(bottom, y1);
+      return { ...ph, groups };
+    }
+
+    if (keepLanes && o.order === 'fixed') {
+      /* One band per run of neighbouring lanes in the same tribe; a label for each tribe's first run. */
+      const sorted = [...members].sort((a, b) => lanes.get(a)![pi] - lanes.get(b)![pi]);
+      const labelled = new Set<string>();
+      let run: Group | null = null;
+      for (const a of sorted) {
+        const t = tribeOn(a, ph.day), y = lanes.get(a)![pi];
+        if (run && run.tribe === t) { run.members.push(a); run.y1 = y + o.rowH / 2; continue; }
+        run = { tribe: t, colour: s.tribes[t], members: [a], yHead: o.top, y0: y - o.rowH / 2, y1: y + o.rowH / 2, label: !labelled.has(t) };
+        labelled.add(t);
+        groups.push(run);
+      }
       return { ...ph, groups };
     }
 
@@ -87,7 +113,7 @@ export function computeLayout(s: Season, revealed: boolean, o: LayoutOptions): L
         lanes.get(a)![pi] = y + o.rowH / 2;
         y += o.rowH;
       }
-      groups.push({ tribe: t, colour: s.tribes[t], members: m, yHead, y1: y });
+      groups.push({ tribe: t, colour: s.tribes[t], members: m, yHead, y0: yHead, y1: y, label: true });
       y += o.gap;
     }
     bottom = Math.max(bottom, y - o.gap);

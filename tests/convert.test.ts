@@ -15,7 +15,7 @@ const stints = (a: Appearance) => a.stints.map((s) => [s.from, s.to, s.tribe, !!
 
 describe('seasons', () => {
   it('keeps completed seasons in air order', () => {
-    expect(data.seasons.map((s) => s.num)).toEqual([1, 4, 10, 22, 27, 38, 41, 45]);
+    expect(data.seasons.map((s) => s.num)).toEqual([1, 4, 7, 10, 22, 27, 38, 41, 45]);
   });
 
   it('leaves out seasons that had not finished airing', () => {
@@ -159,5 +159,25 @@ describe('people', () => {
   it('carries the survivoR attribution', () => {
     expect(data.source).toContain('survivoR');
     expect(data.source).toContain('MIT');
+  });
+});
+
+describe('Pearl Islands Outcasts (a Second chance kept as a swapped tribe)', () => {
+  it('is a Second chance, not a tribe shuffle', () => {
+    expect(season(7).secondChance).toBe('The Outcasts');
+    expect(season(7).phases.map((p) => [p.day, p.label])).toEqual([[1, 'Start'], [20, 'Merge']]);
+  });
+
+  it('starts the day after the vote-out, even when the mapping lags', () => {
+    expect(stints(player(7, 'Burton'))).toEqual([
+      [1, 12, 'Drake', false], [13, 19, 'The Outcasts', true], [20, 36, 'Balboa', false],
+    ]);
+    expect(player(7, 'Burton').exit.kind).toBe('voted');
+  });
+
+  it('ends for players who lost the Outcasts challenge', () => {
+    const nicole = player(7, 'Nicole');
+    expect(stints(nicole)).toEqual([[1, 3, 'Morgan', false], [4, 19, 'The Outcasts', true]]);
+    expect(nicole.exit).toEqual({ day: 19, kind: 'secondChance', label: 'Lost the Outcasts challenge' });
   });
 });

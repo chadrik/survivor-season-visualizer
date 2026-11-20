@@ -7,7 +7,7 @@
  */
 import { copyFile, readFile, writeFile } from 'node:fs/promises';
 
-const SEASONS = new Set([1, 4, 10, 22, 27, 38, 41, 45]);
+const SEASONS = new Set([1, 4, 7, 10, 22, 27, 38, 41, 45]);
 const TABLES = ['castaways', 'castaway_details', 'tribe_mapping', 'tribe_colours', 'season_summary', 'vote_history', 'challenge_results'];
 type Row = Record<string, unknown>;
 /* Only the columns convert() reads, to keep the fixture small. */

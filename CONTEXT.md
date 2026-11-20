@@ -52,7 +52,7 @@ Being voted out at a tribal council. An Appearance can have more than one when t
 _Avoid_: Boot, elimination (a Vote-out is not always the end)
 
 **Second chance**:
-A twist where voted-out players keep playing apart from the tribes and may return to the game, such as Redemption Island or the Edge of Extinction.
+A twist where voted-out players keep playing apart from the tribes and may return to the game, such as Redemption Island, the Edge of Extinction or the Pearl Islands Outcasts.
 _Avoid_: Redemption (a single twist's name), purgatory, limbo
 
 **Exit**:
@@ -75,7 +75,7 @@ The horizontal track a Lifeline runs along. By default a Lane holds one Appearan
 _Avoid_: Row (the name column's line, which a Lifeline can leave after a swap)
 
 **Order**:
-The viewer's choice of how Lanes are arranged within each Tribe: Stable lanes (by first name, the default) or Longest-lasting first.
+The viewer's choice of how Lanes are arranged within each Tribe: Stable lanes (by first name, the default), Fixed lanes (Stable lanes that never change, so a swap shows only as a change of Tribe colour) or Longest-lasting first.
 
 **Active season**:
 The Season the viewer is reading now: the season card under the reading line as they scroll. The player card follows it.

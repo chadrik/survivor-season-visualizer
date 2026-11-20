@@ -17,12 +17,17 @@ export interface RenderOptions {
   order: Order;
 }
 
-const ROW_H = 19, TOP = 46, PAD_R = 26;
+const ROW_H = 19, PAD_R = 26;
+/* Header rows above the lanes: phase labels (one row each), then the day axis. */
+const LABEL_ROW = 12, AXIS_H = 34;
 
 export function renderSeason(s: Season, revealed: boolean, visibleW: number, o: RenderOptions): string {
   const left = visibleW < 640 ? 118 : 178;
   const W = Math.max(visibleW, left + o.maxDays * MIN_DAY + PAD_R);
   const X = (d: number) => left + (d / o.maxDays) * (W - left - PAD_R);
+  const labelRows = revealed ? phaseLabelRows(s, X) : [];
+  const head = LABEL_ROW * Math.max(1, ...labelRows.map((r) => r + 1));
+  const TOP = head + AXIS_H;
   const L = computeLayout(s, revealed, { order: o.order, rowH: ROW_H, head: 19, gap: 8, top: TOP });
   const H = L.height + 26;
   /* Crossovers start after the last day of a phase, so markers on that day sit on a level line. */
@@ -31,12 +36,31 @@ export function renderSeason(s: Season, revealed: boolean, visibleW: number, o: 
   let bands = '', pills = '', lives = '', dots = '', marks = '', names = '';
   for (const ph of L.phases) {
     const x0 = X(ph.day - 1), x1 = X(ph.end);
+    /*
+     * Labels in one row sit side by side. When they do not fit in the phase,
+     * each becomes a dot in its tribe colour that names the tribe on hover.
+     */
+    const pillW = (g: { tribe: string }) => g.tribe.length * 6.6 + 12;
+    const rows = new Map<number, typeof ph.groups>();
+    for (const g of ph.groups) if (g.label) rows.set(g.yHead, [...(rows.get(g.yHead) ?? []), g]);
     for (const g of ph.groups) {
-      const label = g.tribe.toUpperCase();
-      const pw = label.length * 6.6 + 12;
-      bands += `<rect class="band" x="${x0}" y="${g.yHead}" width="${x1 - x0}" height="${g.y1 - g.yHead + 2}" fill="${g.colour}"/>`;
-      pills += `<g class="pill"><rect x="${x0 + 8}" y="${g.yHead + 3}" width="${pw}" height="13" rx="6.5" fill="${g.colour}"/>` +
-        `<text x="${x0 + 8 + pw / 2}" y="${g.yHead + 10}" fill="${textOn(g.colour)}" text-anchor="middle" dominant-baseline="central">${esc(label)}</text></g>`;
+      bands += `<rect class="band" x="${x0}" y="${g.y0}" width="${x1 - x0}" height="${g.y1 - g.y0 + 2}" fill="${g.colour}"/>`;
+    }
+    for (const [yHead, row] of rows) {
+      const last = ph === L.phases[L.phases.length - 1];
+      const fits = last || row.reduce((w, g) => w + pillW(g) + 4, 8) <= x1 - x0;
+      let px = x0 + 8;
+      for (const g of row) {
+        if (!fits) {
+          pills += `<circle class="pill-dot" cx="${px + 5}" cy="${yHead + 9.5}" r="5" fill="${g.colour}" data-tip="${esc(g.tribe)}|Tribe from Day ${ph.day}"/>`;
+          px += 13;
+          continue;
+        }
+        const label = g.tribe.toUpperCase(), pw = pillW(g);
+        pills += `<g class="pill"><rect x="${px}" y="${yHead + 3}" width="${pw}" height="13" rx="6.5" fill="${g.colour}"/>` +
+          `<text x="${px + pw / 2}" y="${yHead + 10}" fill="${textOn(g.colour)}" text-anchor="middle" dominant-baseline="central">${esc(label)}</text></g>`;
+        px += pw + 4;
+      }
     }
   }
 
@@ -55,14 +79,14 @@ export function renderSeason(s: Season, revealed: boolean, visibleW: number, o: 
   }
 
   const lines = juryLines(s);
-  const markers = revealed && lines ? juryMarkers(lines, X, 36, L.height + 4) : '';
+  const markers = revealed && lines ? juryMarkers(lines, X, TOP - 10, L.height + 4) : '';
   const hidden = revealed ? '' :
     `<rect class="reveal-hit" x="${X(0)}" y="${TOP}" width="${X(s.days) - X(0)}" height="${L.height - TOP}"/>` +
     veil((left + Math.min(visibleW, W) - PAD_R) / 2, (TOP + L.height) / 2);
 
   const timeline = `<svg width="${W}" height="${H}" viewBox="0 0 ${W} ${H}" role="img" aria-label="Season ${s.num} lifelines">
     <defs><filter id="blur-${s.id}" x="-5%" y="-60%" width="110%" height="220%"><feGaussianBlur stdDeviation="3"/></filter></defs>
-    ${axis(s, L, X, revealed)}${bands}${markers}
+    ${axis(s, L, X, head, labelRows)}${bands}${markers}
     <g ${revealed ? '' : `filter="url(#blur-${s.id})"`}>${lives}</g>${dots}${pills}${marks}${hidden}
   </svg>`;
   const edge = W > visibleW ? `<rect class="names-edge" x="${left - 6}" y="0" width="8" height="${H}"/>` : '';
@@ -108,7 +132,7 @@ function nameText(a: Appearance, s: Season, x: number, y: number): string {
 
 function exitMark(a: Appearance, x: number, y: number): string {
   const r = 8.5;
-  return `<g class="exit" data-pid="${a.pid}" data-tip="${esc(a.name)}|${EXIT_ICONS[a.exit.kind]} ${esc(a.exit.label)} · Day ${a.exit.day}" transform="translate(${x},${y})">` +
+  return `<g class="exit${a.winner ? ' winner' : ''}" data-pid="${a.pid}" data-tip="${esc(a.name)}|${EXIT_ICONS[a.exit.kind]} ${esc(a.exit.label)} · Day ${a.exit.day}" transform="translate(${x},${y})">` +
     `<circle r="${r}"/><text font-size="${(r * 1.1).toFixed(1)}" text-anchor="middle" dominant-baseline="central" y="0.5">${EXIT_ICONS[a.exit.kind]}</text></g>`;
 }
 
@@ -135,24 +159,45 @@ function immunityMarks(a: Appearance, L: Layout, X: (d: number) => number): stri
   return a.tribeImmunity.map((d) => mark(d, 'tribe')).join('') + a.immunity.map((d) => mark(d, 'individual')).join('');
 }
 
-function axis(s: Season, L: Layout, X: (d: number) => number, revealed: boolean): string {
+/*
+ * Row for each phase label after the first, so labels never overlap: each goes
+ * in the first row where it clears the label before it.
+ */
+function phaseLabelRows(s: Season, X: (d: number) => number): number[] {
+  const ends: number[] = [];
+  return s.phases.slice(1).map((ph) => {
+    const x = X(ph.day - 1) + 4;
+    let row = ends.findIndex((end) => x > end + 8);
+    if (row < 0) row = ends.length;
+    ends[row] = x + ph.label.length * 6.2;
+    return row;
+  });
+}
+
+/*
+ * Day axis under the phase labels. A phase starts at a tick on the boundary
+ * before its first day; the tick carries that day's number on the axis.
+ */
+function axis(s: Season, L: Layout, X: (d: number) => number, head: number, labelRows: number[]): string {
   const dayW = X(1) - X(0);
   const step = dayW < 9 ? 6 : 3;
-  const gridTop = 36, gridBottom = L.height + 2;
+  const axisY = head + 18, gridTop = head + 24, gridBottom = L.height + 2;
+  const phases = labelRows.length ? L.phases.slice(1) : [];
+  /* Leave out regular day numbers that would collide with a phase's day number. */
+  const clear = (x: number) => phases.every((ph) => Math.abs(X(ph.day - 1) + 2 - x) > 16);
   let g = '<g class="axis">';
   for (let d = 0; d <= s.days; d += step) {
     g += `<line class="grid" x1="${X(d)}" x2="${X(d)}" y1="${gridTop}" y2="${gridBottom}"/>`;
-    if (d > 0) g += `<text x="${X(d)}" y="30" text-anchor="middle">${d}</text>`;
+    if (d > 0 && clear(X(d))) g += `<text x="${X(d)}" y="${axisY}" text-anchor="middle">${d}</text>`;
   }
-  if (s.days % step) g += `<text x="${X(s.days)}" y="30" text-anchor="middle">${s.days}</text>`;
-  g += `<text x="${X(0)}" y="30">Day</text>`;
-  if (revealed) {
-    for (const ph of L.phases.slice(1)) {
-      const x = X(ph.day - 1);
-      g += `<line class="phase-tick" x1="${x}" x2="${x}" y1="18" y2="${gridBottom}"/>` +
-        `<text class="phase-label" x="${x + 4}" y="14">${esc(ph.label)} · Day ${ph.day}</text>`;
-    }
-  }
+  if (s.days % step && clear(X(s.days))) g += `<text x="${X(s.days)}" y="${axisY}" text-anchor="middle">${s.days}</text>`;
+  g += `<text x="${X(0)}" y="${axisY}">Day</text>`;
+  phases.forEach((ph, i) => {
+    const x = X(ph.day - 1), y = LABEL_ROW * (labelRows[i] + 1);
+    g += `<line class="phase-tick" x1="${x}" x2="${x}" y1="${y - 9}" y2="${gridBottom}"/>` +
+      `<text class="phase-label" x="${x + 4}" y="${y}">${esc(ph.label)}</text>` +
+      `<text class="phase-day" x="${x + 3}" y="${axisY}">${ph.day}</text>`;
+  });
   return g + '</g>';
 }
 

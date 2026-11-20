@@ -3,7 +3,7 @@
  * the season index, the player card rail, hover popovers and settings.
  */
 import type { Appearance, Dataset, Season } from '../model.ts';
-import type { Order } from '../layout.ts';
+import { ORDERS, type Order } from '../layout.ts';
 import { renderSeason } from '../render.ts';
 import { backstorySeasons, buildIndex, startingTribes } from '../season.ts';
 import { esc, reviewUrl, wikiUrl } from '../format.ts';
@@ -322,7 +322,7 @@ export function mountApp(data: Dataset): void {
   const orderButtons = document.querySelectorAll<HTMLButtonElement>('.seg button');
   const syncOrder = () => orderButtons.forEach((b) => b.setAttribute('aria-pressed', String(b.dataset.order === order)));
   orderButtons.forEach((b) => b.addEventListener('click', () => {
-    order = b.dataset.order === 'longevity' ? 'longevity' : 'lanes';
+    order = ORDERS.find((o) => o === b.dataset.order) ?? 'lanes';
     OrderSetting.set(order);
     syncOrder();
     drawAll();

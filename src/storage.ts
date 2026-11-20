@@ -3,7 +3,7 @@
  * Watched, and the lane Order. Storage can be blocked (private windows), so
  * every access is guarded and the page works without it.
  */
-import type { Order } from './layout.ts';
+import { ORDERS, type Order } from './layout.ts';
 
 const watchedKey = (seasonId: string) => `survivor:watched:${seasonId}`;
 const ORDER_KEY = 'survivor:order';
@@ -28,6 +28,6 @@ export const Watched = {
 };
 
 export const OrderSetting = {
-  get(): Order { return read(ORDER_KEY) === 'longevity' ? 'longevity' : 'lanes'; },
+  get(): Order { const v = read(ORDER_KEY); return ORDERS.find((o) => o === v) ?? 'lanes'; },
   set(order: Order): void { write(ORDER_KEY, order); },
 };

@@ -58,6 +58,36 @@ describe('stable lanes (default order)', () => {
   });
 });
 
+describe('fixed lanes', () => {
+  it('never moves a lane, even at a tribe shuffle', () => {
+    const s = season(38);
+    const L = computeLayout(s, true, opts('fixed'));
+    for (const a of s.cast) expect(new Set(L.lanes.get(a)!).size).toBe(1);
+  });
+
+  it('labels each tribe once per phase, in the top label row', () => {
+    const s = season(38);
+    const L = computeLayout(s, true, opts('fixed'));
+    for (const ph of L.phases.slice(1)) {
+      const labels = ph.groups.filter((g) => g.label).map((g) => g.tribe);
+      expect(labels).toEqual([...new Set(labels)]);
+      expect(new Set(ph.groups.map((g) => g.tribe))).toEqual(new Set(labels));
+      expect(ph.groups.every((g) => g.yHead === 50)).toBe(true);
+    }
+  });
+
+  it('puts every player in a band of their tribe on that phase', () => {
+    const s = season(38);
+    const L = computeLayout(s, true, opts('fixed'));
+    const ph = L.phases[1];
+    for (const g of ph.groups) for (const a of g.members) {
+      const y = L.lanes.get(a)![1];
+      expect(y).toBeGreaterThan(g.y0);
+      expect(y).toBeLessThan(g.y1);
+    }
+  });
+});
+
 describe('longest-lasting first', () => {
   it('puts the winner first in their tribe', () => {
     const s = season(1);

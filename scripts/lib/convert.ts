@@ -25,6 +25,12 @@ export interface ConvertOptions {
 }
 
 const SECOND_CHANCES = new Set(['Redemption Island', 'Edge of Extinction']);
+/* Second chances that survivoR records as a swapped tribe, by tribe name. */
+const SECOND_CHANCE_TRIBES = new Set(['The Outcasts']);
+const SECOND_CHANCE_EXITS: Record<string, string> = {
+  'Redemption Island': 'Lost on Redemption Island',
+  'The Outcasts': 'Lost the Outcasts challenge',
+};
 const MAIN_STATUSES = new Set(['Original', 'Swapped', 'Swapped_2', 'Swapped_3', 'Merged', 'Mergatory']);
 const SECOND_CHANCE_COLOUR = '#8a8f98';
 /* Tribe names survivoR uses for a merge before the merged tribe is named. */
@@ -124,6 +130,7 @@ function convertSeason(summary: Row, r: SeasonRows, o: ConvertOptions): Season {
     const status = str(m.tribe_status) ?? '';
     if (SECOND_CHANCES.has(status)) return { tribe: status, second: true };
     if (!MAIN_STATUSES.has(status)) return null;  // e.g. Exile Island
+    if (SECOND_CHANCE_TRIBES.has(String(m.tribe))) return { tribe: String(m.tribe), second: true };
     if (mergedTribe && (status === 'Mergatory' || (status === 'Merged' && PLACEHOLDER_TRIBES.has(String(m.tribe))))) {
       return { tribe: mergedTribe, second: false };
     }
@@ -150,12 +157,14 @@ function convertSeason(summary: Row, r: SeasonRows, o: ConvertOptions): Season {
     sogDay.get(num(c.sog_id) ?? -1) ?? episodeDay.get(num(c.episode) ?? -1) ?? null;
 
   const rockDraws = new Set(r.votes.filter((v) => v.vote_event === 'Rock draw').map((v) => str(v.voted_out_id)));
-  const secondChance = r.mapping.map((m) => str(m.tribe_status)).find((st) => st && SECOND_CHANCES.has(st)) ?? null;
+  const secondChance = r.mapping.map(placeOf).find((p) => p?.second)?.tribe ?? null;
 
   const cast: Appearance[] = r.castaways.map((c) => {
     const pid = str(c.castaway_id)!;
     const rows = sortRows(byPlayer.get(pid) ?? []);
-    const stints = buildStints(rows, placeOf);
+    const playerVotes = r.votes.filter((v) => v.voted_out_id === pid);
+    const voteOuts = [...new Set(playerVotes.map((v) => num(v.day)).filter((d): d is number => d !== null))].sort((a, b) => a - b);
+    const stints = enterSecondChanceAfterVoteOut(buildStints(rows, placeOf), voteOuts);
     const lastMapped = rows.length ? num(rows[rows.length - 1].day) ?? 0 : 0;
     const finalist = c.finalist === true || c.winner === true;
     const exitDay = finalist ? days : Math.max(num(c.day) ?? 0, lastMapped);
@@ -166,7 +175,6 @@ function convertSeason(summary: Row, r: SeasonRows, o: ConvertOptions): Season {
       stints.push({ from: 1, to: exitDay, tribe: tribe && tribe !== 'None' ? tribe : 'No tribe' });
     }
 
-    const playerVotes = r.votes.filter((v) => v.voted_out_id === pid);
     const challengesWon = r.challenges.filter((x) => x.castaway_id === pid);
     const winDays = (field: string) => [...new Set(challengesWon
       .filter((x) => x[field] === 1).map(challengeDay)
@@ -180,7 +188,7 @@ function convertSeason(summary: Row, r: SeasonRows, o: ConvertOptions): Season {
       job: null,
       stints,
       exit: exitOf(str(c.result) ?? '', c, exitDay, stints, rockDraws.has(pid)),
-      voteOuts: [...new Set(playerVotes.map((v) => num(v.day)).filter((d): d is number => d !== null))].sort((a, b) => a - b),
+      voteOuts,
       immunity: winDays('won_individual_immunity'),
       tribeImmunity: winDays('won_tribal_immunity'),
       jury: c.jury === true,
@@ -217,6 +225,21 @@ export function buildStints(rows: Row[], placeOf: (m: Row) => { tribe: string; s
     if (!last) stints.push({ from: 1, to: day, tribe: p.tribe, ...(p.second ? { second: true } : {}) });
     else if (last.tribe === p.tribe) last.to = day;
     else stints.push({ from: last.to + 1, to: day, tribe: p.tribe, ...(p.second ? { second: true } : {}) });
+  }
+  return stints;
+}
+
+/*
+ * A player goes to a Second chance the day after a Vote-out. survivoR sometimes
+ * keeps a voted-out player on their tribe until the twist is shown (Pearl
+ * Islands lists Burton on Drake until Day 18, though he was voted out on Day 12).
+ */
+export function enterSecondChanceAfterVoteOut(stints: Stint[], voteOuts: number[]): Stint[] {
+  for (let i = 1; i < stints.length; i++) {
+    const before = stints[i - 1], st = stints[i];
+    if (!st.second || before.second) continue;
+    const v = voteOuts.filter((d) => d >= before.from && d < before.to).pop();
+    if (v !== undefined) { before.to = v; st.from = v + 1; }
   }
   return stints;
 }
@@ -293,7 +316,7 @@ export function exitOf(result: string, c: Row, day: number, stints: Stint[], dre
   else if (r.includes('eliminated')) kind = 'eliminated';
   else if (endedInSecondChance) {
     kind = 'secondChance';
-    label = twist === 'Redemption Island' ? 'Lost on Redemption Island' : `Out at the ${twist}`;
+    label = SECOND_CHANCE_EXITS[twist] ?? `Out at the ${twist}`;
   }
   else kind = 'voted';
   return { day, kind, label: label ?? EXIT_LABELS[kind] };

@@ -48,6 +48,7 @@ export interface Appearance {
   tribeReward: number[];    // days of tribe reward wins
   juryVote: string | null;  // pid of the finalist this juror voted for
   juryVotes: number | null; // jury votes a finalist received
+  photo: Photo | null;      // cast photo from this season
   jury: boolean;
   finalist: boolean;
   winner: boolean;

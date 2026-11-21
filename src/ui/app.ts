@@ -179,6 +179,7 @@ export function mountApp(data: Dataset): void {
       appearances: ix.appearances.get(pinned)!,
       seasonOf,
       activeSeasonId: activeId,
+      activeSeasonNum: data.seasons.find((s) => s.id === activeId)?.num ?? null,
       watched: (id) => Watched.get(id),
     });
     panel.scrollTop = keep;

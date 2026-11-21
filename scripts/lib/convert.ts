@@ -206,6 +206,7 @@ function convertSeason(summary: Row, r: SeasonRows, o: ConvertOptions): Season {
       tribeReward: winDays('won_tribal_reward'),
       juryVote: str(r.juryVotes.find((v) => v.castaway_id === pid)?.finalist_id),
       juryVotes: finalist && r.juryVotes.length ? r.juryVotes.filter((v) => v.finalist_id === pid).length : null,
+      photo: null,  // set by scripts/fetch-photos.ts
       jury: c.jury === true,
       finalist,
       winner: c.winner === true,

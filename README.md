@@ -18,7 +18,7 @@ Requires Node 23.6 or later (the scripts are TypeScript run by Node directly).
 ```sh
 npm install
 npm run data      # download survivoR tables, write public/data/seasons.json
-npm run photos    # optional: fetch player photos into public/photos
+npm run photos    # optional: fetch each season's cast photos into public/photos
 npm run dev       # http://localhost:5173
 npm test          # data conversion and layout tests
 npm run build     # type-check and build the static site into dist/

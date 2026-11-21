@@ -2,6 +2,8 @@
  * Player card: one card per Player, not per Appearance. The per-season stats
  * follow the Active season. When the player is not in the Active season, no
  * row is highlighted and those stats show a dash, so the card keeps its shape.
+ * The photo is from the Active season, or else the nearest earlier season the
+ * player was on (their first, when the Active season is before it).
  */
 import type { Appearance, Person, Season } from '../model.ts';
 import { EXIT_ICONS, esc, initials, ordinal, wikiUrl } from '../format.ts';
@@ -12,6 +14,7 @@ export interface CardContext {
   appearances: Appearance[];  // in air order
   seasonOf: (a: Appearance) => Season;
   activeSeasonId: string | null;
+  activeSeasonNum: number | null;
   watched: (seasonId: string) => boolean;
 }
 
@@ -24,8 +27,10 @@ export function cardHtml(c: CardContext): string {
     return value === null || value === '' ? '<span class="pc-blank">—</span>' : esc(value);
   };
   const tint = cur && curSeason ? curSeason.tribes[startingTribe(cur)] : '#8a8f98';
-  const photo = person.photo
-    ? `<img src="${esc(person.photo.src)}" alt="${esc(person.name)}" loading="lazy"><small class="pc-credit" title="${esc(person.photo.credit)}">Photo: CBS</small>`
+  const shown = cur ?? [...apps].reverse().find((a) => c.seasonOf(a).num <= (c.activeSeasonNum ?? 0)) ?? apps[0];
+  const pic = shown?.photo ?? apps.find((a) => a.photo)?.photo ?? person.photo;
+  const photo = pic
+    ? `<img src="${esc(pic.src)}" alt="${esc(person.name)}${shown ? `, Season ${c.seasonOf(shown).num}` : ''}" loading="lazy"><small class="pc-credit" title="${esc(pic.credit)}">Photo: CBS</small>`
     : `<span>${esc(initials(person.name))}</span><small>no photo</small>`;
 
   const rows = apps.map((a) => {
@@ -46,7 +51,7 @@ export function cardHtml(c: CardContext): string {
 
   return `<div class="pc" aria-label="Player card: ${esc(person.name)}">
     <button class="pc-close" aria-label="Close player card">×</button>
-    <div class="pc-photo${cur ? '' : ' off'}${person.photo ? ' has-img' : ''}" style="--tc:${tint}">${photo}</div>
+    <div class="pc-photo${cur ? '' : ' off'}${pic ? ' has-img' : ''}" style="--tc:${tint}">${photo}</div>
     <div class="pc-body">
       <h3>${esc(person.name)}</h3>
       <dl>

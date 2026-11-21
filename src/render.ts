@@ -9,23 +9,31 @@ import { juryLines, startingTribe } from './season.ts';
 import { EXIT_ICONS, esc } from './format.ts';
 import { strokeColour, textOn } from './colour.ts';
 
-/* The timeline never gets narrower than this many px per day; narrower screens scroll sideways. */
-export const MIN_DAY = 14;
+/*
+ * The timeline never gets narrower than this many px per day; narrower screens
+ * scroll sideways. At 13 px a 42-day season still fits beside the open player
+ * card (an 800 px chart) without scrolling.
+ */
+export const MIN_DAY = 13;
 
 export interface RenderOptions {
   maxDays: number;  // longest season: one day scale shared by every card
   order: Order;
 }
 
-/* PAD_R leaves room for the jury vote count beside each finalist. */
-const ROW_H = 19, PAD_R = 58;
+/*
+ * PAD_R leaves room for the jury vote count beside each finalist. INSET keeps
+ * Day 0 clear of the names column's edge when the timeline scrolls.
+ */
+const ROW_H = 19, PAD_R = 58, INSET = 6;
 /* Header rows above the lanes: phase labels (one row each), then the day axis. */
 const LABEL_ROW = 12, AXIS_H = 34;
 
 export function renderSeason(s: Season, revealed: boolean, visibleW: number, o: RenderOptions): string {
   const left = visibleW < 640 ? 118 : 178;
-  const W = Math.max(visibleW, left + o.maxDays * MIN_DAY + PAD_R);
-  const X = (d: number) => left + (d / o.maxDays) * (W - left - PAD_R);
+  const x0 = left + INSET;
+  const W = Math.max(visibleW, x0 + o.maxDays * MIN_DAY + PAD_R);
+  const X = (d: number) => x0 + (d / o.maxDays) * (W - x0 - PAD_R);
   const labelRows = revealed ? phaseLabelRows(s, X) : [];
   const head = LABEL_ROW * Math.max(1, ...labelRows.map((r) => r + 1));
   const TOP = head + AXIS_H;

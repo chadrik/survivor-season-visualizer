@@ -213,10 +213,9 @@ h1, .card-head h2 { font-weight: 800; letter-spacing: -.01em; }
 .life { fill: none; stroke-width: 3.4; stroke-linecap: round; }
 .life.ghost { stroke: #b9bfc8; }
 .life.pin { stroke-width: 5; }
-.station { fill: #fff; stroke-width: 1.8; }
 .origin { stroke: #fff; stroke-width: 1.5; }
 .exit circle { stroke-width: 2; }
-.hovering .station, .hovering .origin { opacity: .25; }
+.hovering .origin { opacity: .25; }
 .band-row { fill-opacity: .13; }
 
 /* ---------- app additions ---------- */

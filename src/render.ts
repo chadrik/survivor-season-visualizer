@@ -72,9 +72,6 @@ export function renderSeason(s: Season, revealed: boolean, visibleW: number, o: 
     }
     lives += lifeline(a, s, L, ys, X, k);
     dots += `<circle class="origin" cx="${X(0)}" cy="${ys[0]}" r="4" fill="${strokeColour(s.tribes[startingTribe(a)])}"/>`;
-    for (let i = 1; i < ys.length; i++) {
-      dots += `<circle class="station" cx="${X(L.phases[i].day - 1) + 2 * k}" cy="${ys[i]}" r="2.8" stroke="${strokeColour(s.tribes[stintColourTribe(a, L.phases[i].day)])}"/>`;
-    }
     marks += voteOutMarks(a, L, X) + immunityMarks(a, L, X) + exitMark(a, X(a.exit.day), ys[ys.length - 1]);
   }
 
@@ -93,11 +90,6 @@ export function renderSeason(s: Season, revealed: boolean, visibleW: number, o: 
   const namesCol = `<svg class="names-col" width="${left}" height="${H}" viewBox="0 0 ${left} ${H}">` +
     `<rect class="names-bg" width="${left - 4}" height="${H}"/>${edge}${names}</svg>`;
   return `<div class="scroller">${timeline}</div>${namesCol}`;
-}
-
-/* Tribe used for the station dot at a phase change: the stint that starts the phase. */
-function stintColourTribe(a: Appearance, day: number): string {
-  return (a.stints.find((st) => st.from <= day && day <= st.to) ?? a.stints[a.stints.length - 1]).tribe;
 }
 
 /*

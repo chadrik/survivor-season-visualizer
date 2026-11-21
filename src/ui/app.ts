@@ -5,7 +5,7 @@
 import type { Appearance, Dataset, Season } from '../model.ts';
 import { ORDERS, type Order } from '../layout.ts';
 import { renderSeason } from '../render.ts';
-import { backstorySeasons, buildIndex, startingTribes } from '../season.ts';
+import { backstorySeasons, buildIndex } from '../season.ts';
 import { esc, wikiUrl } from '../format.ts';
 import { OrderSetting, Watched } from '../storage.ts';
 import { cardHtml } from './card.ts';
@@ -45,11 +45,11 @@ export function mountApp(data: Dataset): void {
         <div class="card-title">
           <a class="card-num" href="${wikiUrl(s.wikiTitle)}" target="_blank" rel="noopener" title="${esc(s.wikiTitle)} on Survivor Wiki">Season ${s.num}</a>
           <h2>${esc(s.name)}</h2>
+          ${s.subtitle ? `<div class="card-subtitle">${esc(s.subtitle)}</div>` : ''}
           ${s.year ? `<div class="card-year">${s.year}</div>` : ''}
           ${s.ranking ? `<a class="card-rank" href="${esc(s.ranking.url)}" target="_blank" rel="noopener" title="Purple Rock Podcast season ranking, with a spoiler-free summary">Ranked ${s.ranking.rank} of ${s.ranking.of}</a>` : ''}
         </div>
-        <div class="card-meta"><span>${s.cast.length} castaways</span><span>${s.days} days</span>
-          <span>${startingTribes(s).length} starting tribes</span><span class="prereq"></span></div>
+        <div class="card-meta"><span class="prereq"></span></div>
         <label class="toggle"><input type="checkbox" ${Watched.get(s.id) ? 'checked' : ''}>
           <span class="track"><span class="thumb"></span></span><span>Reveal results</span></label>
       </header><div class="chart"></div>`;

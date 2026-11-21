@@ -11,7 +11,7 @@ const tables = JSON.parse(readFileSync('tests/fixtures/survivor-subset.json', 'u
 const data = convert(tables, { version: 'US', today: '2026-11-18', rankings: {
   url: 'https://example.com/rankings/', total: 50,
   seasons: { '31': { rank: 4, heading: '4. Cambodia: Second Chance (season 31)' }, '10': { rank: 13, heading: '13. Palau (season 10)' } },
-} });
+}, subtitles: { '27': 'Test subtitle' } });
 const season = (n: number): Season => data.seasons.find((s) => s.num === n)!;
 const player = (n: number, name: string): Appearance => season(n).cast.find((a) => a.name.startsWith(name))!;
 const stints = (a: Appearance) => a.stints.map((s) => [s.from, s.to, s.tribe, !!s.second]);
@@ -22,7 +22,7 @@ describe('seasons', () => {
   });
 
   it('leaves out seasons that had not finished airing', () => {
-    const early = convert(tables, { version: 'US', today: '2000-01-01', rankings: null });
+    const early = convert(tables, { version: 'US', today: '2000-01-01', rankings: null, subtitles: {} });
     expect(early.seasons).toEqual([]);
   });
 
@@ -37,6 +37,11 @@ describe('seasons', () => {
   it('reads season length from the final day', () => {
     expect(season(1).days).toBe(39);
     expect(season(45).days).toBe(26);
+  });
+
+  it('attaches hand-edited subtitles', () => {
+    expect(season(27).subtitle).toBe('Test subtitle');
+    expect(season(1).subtitle).toBeNull();
   });
 
   it('gives the premiere year', () => {

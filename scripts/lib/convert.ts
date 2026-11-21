@@ -30,6 +30,7 @@ export interface ConvertOptions {
   version: string;                  // "US"
   today: string;                    // ISO date; seasons that end after it are left out
   rankings: Rankings | null;        // saved Purple Rock ranking (data/purple-rock-rankings.json)
+  subtitles: Record<string, string>; // season number -> official subtitle (data/subtitles.json)
 }
 
 const SECOND_CHANCES = new Set(['Redemption Island', 'Edge of Extinction']);
@@ -220,6 +221,7 @@ function convertSeason(summary: Row, r: SeasonRows, o: ConvertOptions): Season {
     version: o.version,
     num: n,
     name,
+    subtitle: o.subtitles[String(n)] ?? null,
     days,
     tribes,
     secondChance,

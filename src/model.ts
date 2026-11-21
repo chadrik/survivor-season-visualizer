@@ -65,6 +65,7 @@ export interface Season {
   version: string;   // "US"
   num: number;
   name: string;      // "Borneo", "Survivor 41"
+  subtitle: string | null;  // official subtitle, such as "Brains vs. Brawn vs. Beauty"
   days: number;
   tribes: Record<string, string>;  // tribe name -> colour, in display order
   secondChance: string | null;     // twist name, such as "Edge of Extinction"

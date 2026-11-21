@@ -7,7 +7,7 @@ import { backstorySeasons, buildIndex, juryLines, startingTribe } from '../src/s
 import type { Season } from '../src/model.ts';
 
 const tables = JSON.parse(readFileSync('tests/fixtures/survivor-subset.json', 'utf8')) as RawTables;
-const data = convert(tables, { version: 'US', today: '2026-11-18', rankings: null });
+const data = convert(tables, { version: 'US', today: '2026-11-18', rankings: null, subtitles: {} });
 const season = (n: number): Season => data.seasons.find((s) => s.num === n)!;
 const opts = (order: Order) => ({ order, rowH: 20, head: 20, gap: 10, top: 50 });
 const byName = (s: Season, name: string) => s.cast.find((a) => a.name.startsWith(name))!;

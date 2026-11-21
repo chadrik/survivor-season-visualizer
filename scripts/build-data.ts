@@ -4,7 +4,8 @@
  *   npm run data              use cached tables in data/raw, download missing ones
  *   npm run data -- --refresh download every table again
  *
- * Also reads data/purple-rock-rankings.json (written by npm run rankings) and,
+ * Also reads data/subtitles.json (hand-edited), data/purple-rock-rankings.json
+ * (written by npm run rankings) and,
  * when present, public/photos/manifest.json (written by npm run photos).
  */
 import { existsSync } from 'node:fs';
@@ -42,8 +43,11 @@ async function loadTables(): Promise<RawTables> {
 }
 
 const rankings = JSON.parse(await readFile('data/purple-rock-rankings.json', 'utf8')) as Rankings;
+const subtitles: Record<string, string> = Object.fromEntries(
+  Object.entries(JSON.parse(await readFile('data/subtitles.json', 'utf8')) as Record<string, string>).filter(([k]) => /^\d+$/.test(k)),
+);
 const today = new Date().toISOString().slice(0, 10);
-const dataset = convert(await loadTables(), { version: 'US', today, rankings });
+const dataset = convert(await loadTables(), { version: 'US', today, rankings, subtitles });
 
 const manifestPath = 'public/photos/manifest.json';
 if (existsSync(manifestPath)) applyPhotos(dataset, JSON.parse(await readFile(manifestPath, 'utf8')) as PhotoManifest);

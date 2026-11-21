@@ -16,6 +16,7 @@ export interface RawTables {
   season_summary: Row[];
   vote_history: Row[];
   challenge_results: Row[];
+  jury_votes: Row[];
 }
 
 /* Saved Purple Rock ranking, as written by scripts/fetch-rankings.ts. */
@@ -69,6 +70,7 @@ export function convert(t: RawTables, o: ConvertOptions): Dataset {
   const votes = t.vote_history.filter(inVersion);
   const challenges = t.challenge_results.filter(inVersion);
   const colours = t.tribe_colours.filter(inVersion);
+  const juryVotes = t.jury_votes.filter(inVersion);
   const details = new Map(t.castaway_details.map((r) => [str(r.castaway_id) ?? '', r]));
 
   /* A season is complete when it has a winner and has finished airing. */
@@ -85,6 +87,7 @@ export function convert(t: RawTables, o: ConvertOptions): Dataset {
     votes: votes.filter((r) => r.season === s.season),
     challenges: challenges.filter((r) => r.season === s.season),
     colours: colours.filter((r) => r.season === s.season),
+    juryVotes: juryVotes.filter((r) => r.season === s.season && r.vote === 1),
   }, o));
 
   const shortName = new Map(castaways.map((c) => [str(c.castaway_id) ?? '', str(c.castaway)]));
@@ -116,6 +119,7 @@ interface SeasonRows {
   votes: Row[];
   challenges: Row[];
   colours: Row[];
+  juryVotes: Row[];  // one row per juror: the finalist they voted for
 }
 
 function convertSeason(summary: Row, r: SeasonRows, o: ConvertOptions): Season {
@@ -183,8 +187,8 @@ function convertSeason(summary: Row, r: SeasonRows, o: ConvertOptions): Season {
     }
 
     const challengesWon = r.challenges.filter((x) => x.castaway_id === pid);
-    const winDays = (field: string) => [...new Set(challengesWon
-      .filter((x) => x[field] === 1).map(challengeDay)
+    const winDays = (...fields: string[]) => [...new Set(challengesWon
+      .filter((x) => fields.some((f) => x[f] === 1)).map(challengeDay)
       .filter((d): d is number => d !== null && d <= exitDay))].sort((a, b) => a - b);
 
     return {
@@ -198,6 +202,10 @@ function convertSeason(summary: Row, r: SeasonRows, o: ConvertOptions): Season {
       voteOuts,
       immunity: winDays('won_individual_immunity'),
       tribeImmunity: winDays('won_tribal_immunity'),
+      reward: winDays('won_individual_reward', 'won_team_reward'),
+      tribeReward: winDays('won_tribal_reward'),
+      juryVote: str(r.juryVotes.find((v) => v.castaway_id === pid)?.finalist_id),
+      juryVotes: finalist && r.juryVotes.length ? r.juryVotes.filter((v) => v.finalist_id === pid).length : null,
       jury: c.jury === true,
       finalist,
       winner: c.winner === true,

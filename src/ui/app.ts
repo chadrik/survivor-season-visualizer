@@ -241,7 +241,7 @@ export function mountApp(data: Dataset): void {
 
   /* ---------- pointer and keyboard ---------- */
 
-  const HOVER_TARGETS = '.name, .exit, .immunity, .voteout';
+  const HOVER_TARGETS = '.name, .exit, .immunity, .reward, .voteout';
   page.addEventListener('mouseover', (e) => {
     const t = (e.target as Element).closest<HTMLElement | SVGElement>(HOVER_TARGETS);
     if (t) { hovered = t.dataset.pid ?? null; applyHighlight(); }

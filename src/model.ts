@@ -44,6 +44,10 @@ export interface Appearance {
   voteOuts: number[];       // days of each Vote-out
   immunity: number[];       // days of individual immunity wins
   tribeImmunity: number[];  // days of tribe immunity wins
+  reward: number[];         // days of individual or team reward wins
+  tribeReward: number[];    // days of tribe reward wins
+  juryVote: string | null;  // pid of the finalist this juror voted for
+  juryVotes: number | null; // jury votes a finalist received
   jury: boolean;
   finalist: boolean;
   winner: boolean;

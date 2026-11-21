@@ -14,7 +14,7 @@ import { applyPhotos, type PhotoManifest } from './lib/photos.ts';
 
 const BASE = 'https://raw.githubusercontent.com/doehm/survivoR/master';
 const TABLES: (keyof RawTables)[] = [
-  'castaways', 'castaway_details', 'tribe_mapping', 'tribe_colours', 'season_summary', 'vote_history', 'challenge_results',
+  'castaways', 'castaway_details', 'tribe_mapping', 'tribe_colours', 'season_summary', 'vote_history', 'challenge_results', 'jury_votes',
 ];
 const RAW = 'data/raw';
 const OUT = 'public/data';

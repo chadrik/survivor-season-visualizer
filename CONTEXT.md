@@ -65,6 +65,13 @@ A win that protects one player from the vote at one tribal council.
 **Tribe immunity**:
 A win that protects a whole Tribe from attending one tribal council. Every member of the winning Tribe that day shares it; with three or more Tribes, more than one Tribe can win.
 
+**Reward**:
+A challenge win that earns comfort (food, a trip, supplies) but no protection. An individual Reward is won by one player or a small team; a **Tribe reward** is shared by every member of the winning Tribe.
+_Avoid_: Prize
+
+**Jury vote**:
+Each juror's single vote at the final tribal council for the Finalist they want to win. The Finalist with the most jury votes is the Sole Survivor.
+
 ### Viewing
 
 **Lifeline**:

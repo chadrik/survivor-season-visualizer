@@ -32,7 +32,10 @@ export function cardHtml(c: CardContext): string {
     const s = c.seasonOf(a);
     const res = c.watched(s.id)
       ? `${EXIT_ICONS[a.exit.kind]} ${esc(a.exit.label)}${a.finalist ? '' : ` · Day ${a.exit.day}`}` +
-        (a.immunity.length ? ` · <span class="imm">◆</span>×${a.immunity.length}` : '')
+        (a.juryVotes !== null ? ` · ${a.juryVotes} of ${s.cast.filter((j) => j.juryVote).length} votes` : '') +
+        (a.immunity.length ? ` · <span class="imm">◆</span>×${a.immunity.length}` : '') +
+        (a.reward.length ? ` · <span class="rew">■</span>×${a.reward.length}` : '') +
+        (a.juryVote ? ` · voted for ${esc(s.cast.find((f) => f.pid === a.juryVote)?.name.split(' ')[0] ?? '')}` : '')
       : 'Results hidden';
     return `<li class="${a === cur ? 'on' : ''}">
       <button data-goto="${s.id}:${a.pid}" title="Go to ${esc(a.name)} in Season ${s.num}">

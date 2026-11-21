@@ -17,7 +17,8 @@ export interface RenderOptions {
   order: Order;
 }
 
-const ROW_H = 19, PAD_R = 26;
+/* PAD_R leaves room for the jury vote count beside each finalist. */
+const ROW_H = 19, PAD_R = 58;
 /* Header rows above the lanes: phase labels (one row each), then the day axis. */
 const LABEL_ROW = 12, AXIS_H = 34;
 
@@ -72,7 +73,7 @@ export function renderSeason(s: Season, revealed: boolean, visibleW: number, o: 
     }
     lives += lifeline(a, s, L, ys, X, k);
     dots += `<circle class="origin" cx="${X(0)}" cy="${ys[0]}" r="4" fill="${strokeColour(s.tribes[startingTribe(a)])}"/>`;
-    marks += voteOutMarks(a, L, X) + immunityMarks(a, L, X) + exitMark(a, X(a.exit.day), ys[ys.length - 1]);
+    marks += voteOutMarks(a, L, X) + rewardMarks(a, L, X) + immunityMarks(a, L, X) + exitMark(a, s, X(a.exit.day), ys[ys.length - 1]);
   }
 
   const lines = juryLines(s);
@@ -122,10 +123,35 @@ function nameText(a: Appearance, s: Season, x: number, y: number): string {
     `style="--tc:${strokeColour(s.tribes[startingTribe(a)])}" x="${x}" y="${y}" text-anchor="end" dominant-baseline="central">${esc(a.name)}</text>`;
 }
 
-function exitMark(a: Appearance, x: number, y: number): string {
+/* Exit icon. A finalist's jury vote count sits beside it; a juror's vote is in the tooltip. */
+function exitMark(a: Appearance, s: Season, x: number, y: number): string {
   const r = 8.5;
-  return `<g class="exit${a.winner ? ' winner' : ''}" data-pid="${a.pid}" data-tip="${esc(a.name)}|${EXIT_ICONS[a.exit.kind]} ${esc(a.exit.label)} · Day ${a.exit.day}" transform="translate(${x},${y})">` +
-    `<circle r="${r}"/><text font-size="${(r * 1.1).toFixed(1)}" text-anchor="middle" dominant-baseline="central" y="0.5">${EXIT_ICONS[a.exit.kind]}</text></g>`;
+  const jurors = s.cast.filter((j) => j.juryVote).length;
+  const votedFor = a.juryVote ? s.cast.find((f) => f.pid === a.juryVote)?.name : null;
+  let tip = `${EXIT_ICONS[a.exit.kind]} ${esc(a.exit.label)} · Day ${a.exit.day}`;
+  if (a.juryVotes !== null) tip += ` · ${a.juryVotes} of ${jurors} jury votes`;
+  if (votedFor) tip += ` · Jury vote: ${esc(votedFor)}`;
+  const count = a.juryVotes === null ? '' :
+    `<text class="jury-count" x="${r + 5}" y="0.5" dominant-baseline="central">${a.juryVotes} vote${a.juryVotes === 1 ? '' : 's'}</text>`;
+  return `<g class="exit${a.winner ? ' winner' : ''}" data-pid="${a.pid}" data-tip="${esc(a.name)}|${tip}" transform="translate(${x},${y})">` +
+    `<circle r="${r}"/><text font-size="${(r * 1.1).toFixed(1)}" text-anchor="middle" dominant-baseline="central" y="0.5">${EXIT_ICONS[a.exit.kind]}</text>${count}</g>`;
+}
+
+/*
+ * Blue square: individual or team reward. Hollow: tribe reward. Reward
+ * challenges share a day with that episode's immunity challenge, so the
+ * square sits half a day earlier, clear of the immunity diamond.
+ */
+function rewardMarks(a: Appearance, L: Layout, X: (d: number) => number): string {
+  const mark = (day: number, kind: 'tribe' | 'individual') => {
+    const tip = kind === 'tribe'
+      ? `▫ Tribe reward (${esc(a.stints.find((st) => st.from <= day && day <= st.to)?.tribe ?? '')}) · Day ${day}`
+      : `▪ Reward · Day ${day}`;
+    const h = kind === 'tribe' ? 3 : 3.5;
+    return `<g class="reward ${kind}" data-pid="${a.pid}" data-tip="${esc(a.name)}|${tip}" transform="translate(${X(day - 0.5)},${laneOn(L, a, day)})">` +
+      `<circle r="6" class="mark-hit"/><rect x="${-h}" y="${-h}" width="${2 * h}" height="${2 * h}" rx="1"/></g>`;
+  };
+  return a.tribeReward.map((d) => mark(d, 'tribe')).join('') + a.reward.map((d) => mark(d, 'individual')).join('');
 }
 
 /* A vote-out that did not end the game (the player went to a Second chance). */

@@ -189,3 +189,24 @@ describe('Pearl Islands Outcasts (a Second chance kept as a swapped tribe)', () 
     expect(nicole.exit).toEqual({ day: 19, kind: 'secondChance', label: 'Lost the Outcasts challenge' });
   });
 });
+
+describe('reward wins', () => {
+  it('lists individual and tribe reward days', () => {
+    const kelly = player(1, 'Kelly');
+    expect(kelly.reward).toEqual([36]);
+    expect(kelly.tribeReward).toEqual([9, 12]);
+  });
+});
+
+describe('final jury vote', () => {
+  it('counts the votes each finalist received', () => {
+    expect(player(1, 'Richard').juryVotes).toBe(4);
+    expect(player(1, 'Kelly').juryVotes).toBe(3);
+    expect(player(1, 'Greg').juryVotes).toBeNull();
+  });
+
+  it('records whom each juror voted for', () => {
+    expect(player(1, 'Greg').juryVote).toBe(player(1, 'Richard').pid);
+    expect(player(1, 'Sonja').juryVote).toBeNull();
+  });
+});

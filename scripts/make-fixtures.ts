@@ -8,7 +8,7 @@
 import { copyFile, readFile, writeFile } from 'node:fs/promises';
 
 const SEASONS = new Set([1, 4, 7, 10, 22, 27, 38, 41, 45]);
-const TABLES = ['castaways', 'castaway_details', 'tribe_mapping', 'tribe_colours', 'season_summary', 'vote_history', 'challenge_results'];
+const TABLES = ['castaways', 'castaway_details', 'tribe_mapping', 'tribe_colours', 'season_summary', 'vote_history', 'challenge_results', 'jury_votes'];
 type Row = Record<string, unknown>;
 /* Only the columns convert() reads, to keep the fixture small. */
 const COLUMNS: Record<string, string[] | null> = {
@@ -17,7 +17,9 @@ const COLUMNS: Record<string, string[] | null> = {
   tribe_colours: null,
   season_summary: ['version', 'season', 'season_name', 'premiered', 'ended'],
   vote_history: ['version', 'season', 'day', 'sog_id', 'voted_out_id', 'vote_event'],
-  challenge_results: ['version', 'season', 'episode', 'sog_id', 'castaway_id', 'won_individual_immunity', 'won_tribal_immunity'],
+  challenge_results: ['version', 'season', 'episode', 'sog_id', 'castaway_id', 'won_individual_immunity', 'won_tribal_immunity',
+    'won_individual_reward', 'won_team_reward', 'won_tribal_reward'],
+  jury_votes: ['version', 'season', 'castaway_id', 'finalist_id', 'vote'],
 };
 const pick = (r: Row, cols: string[] | null): Row => (cols ? Object.fromEntries(cols.map((c) => [c, r[c]])) : r);
 
@@ -27,7 +29,8 @@ for (const t of TABLES) {
   const rows = JSON.parse(await readFile(`data/raw/${t}.json`, 'utf8')) as Row[];
   if (t === 'castaway_details') continue;
   out[t] = rows.filter((r) => r.version === 'US' && SEASONS.has(r.season as number)).map((r) => pick(r, COLUMNS[t]))
-    .filter((r) => t !== 'challenge_results' || r.won_individual_immunity === 1 || r.won_tribal_immunity === 1);
+    .filter((r) => t !== 'challenge_results' || [r.won_individual_immunity, r.won_tribal_immunity, r.won_individual_reward,
+      r.won_team_reward, r.won_tribal_reward].includes(1));
   if (t === 'castaways') for (const r of out[t]) ids.add(r.castaway_id as string);
 }
 out.castaway_details = (JSON.parse(await readFile('data/raw/castaway_details.json', 'utf8')) as Row[])
